@@ -4,6 +4,13 @@ Python-implemented algorithms from Christopher Bishop's book "Pattern Recognitio
 Some concepts were also taken from Kevin P. Murphy's "Machine Learning: A Probabilistic Perspective".
 These algorithms are grouped by chapters and wrapped around tkinter.
 
+All _main.py_ files mostly contain GUI logic. For exploring ML magic take a look at _model_specific.py_ files.
+
+## Requirements
+Python 3.6 with:
+- numpy-1.19.5
+- matplotlib-3.3.4
+
 ## Linear Models for Regression
 - Linear regression
 - Bayesian linear regression

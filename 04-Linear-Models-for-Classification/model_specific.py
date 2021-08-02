@@ -64,6 +64,17 @@ def GaussianPDF(x, mu, var):
     num = np.exp(-(x - mu)**2 / (2 * var))
     return num / denom
 
+def multiGaussianPDF(x, mu, covar):
+    d = mu.size
+    det = np.linalg.det(covar)
+    if det <= 0:
+        return np.zeros(d)
+    normCoeff = (1. / (1 * np.pi)**(d/2)) * (1. / det**(1/2))
+    covar_inv = np.linalg.inv(covar)
+    dff = (x - mu)
+    Exp = np.exp( (dff @ covar_inv @ dff.T) / (-2) )
+    return normCoeff * Exp
+
 def stepFunction(x):
     if x.ndim > 1 and x.shape[1] == 1:
         x = x[:, 0]

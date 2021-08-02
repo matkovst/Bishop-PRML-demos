@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.stats import multivariate_normal
 
 import tkinter as tk
 from tkinter import ttk
@@ -463,11 +462,11 @@ class App:
             elif mtdInt == 3: # <- Plot Gaussian densities
                 X1_grid, X2_grid = np.meshgrid(xx1, xx2)
                 for ki in range(self.K):
-                    distr = multivariate_normal(mean = self.classifier.Means_ml[:, ki], cov = self.classifier.Covars_ml[:, :, ki])
                     pdf = np.zeros(X1_grid.shape)
                     for i in range(X1_grid.shape[0]):
                         for j in range(X1_grid.shape[1]):
-                            pdf[i, j] = distr.pdf([X1_grid[i, j], X2_grid[i, j]])
+                            px = np.array([X1_grid[i, j], X2_grid[i, j]])
+                            pdf[i, j] = model.multiGaussianPDF(px, self.classifier.Means_ml[:, ki], self.classifier.Covars_ml[:, :, ki])
                     ax.contour(X1_grid, X2_grid, pdf, cmap = self.AvailColorMaps[ki])
 
         # Plot hyperplanes
