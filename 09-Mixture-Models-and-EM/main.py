@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 
 import tkinter as tk
@@ -322,53 +323,57 @@ class App:
 
         # Plot decision regions
         if auxParams['doDrawDesRegs']:
+            try:
+                if mtdInt == 0:
+                    xx, yy = np.meshgrid(xx1, xx2)
+                    Z = self.classifier.predict(np.c_[xx.ravel(), yy.ravel()])
+                    Z = Z.reshape(xx.shape)
+                    ax.contourf(xx, yy, Z, cmap = matplotlib.colors.ListedColormap(self.KColors), alpha = 0.15)
 
-            if mtdInt == 0:
-                xx, yy = np.meshgrid(xx1, xx2)
-                Z = self.classifier.predict(np.c_[xx.ravel(), yy.ravel()])
-                Z = Z.reshape(xx.shape)
-                ax.contourf(xx, yy, Z, cmap = matplotlib.colors.ListedColormap(self.KColors), alpha = 0.15)
-
-            elif mtdInt == 1:
-                xx, yy = np.meshgrid(xx1, xx2)
-                Z = self.classifier.predict(np.c_[xx.ravel(), yy.ravel()])
-                Z_probs = self.classifier.predict_proba(np.c_[xx.ravel(), yy.ravel()])
-                Z = Z.reshape(xx.shape)
-                for k in range(clusters):
-                    k_probs = Z_probs[:, k]
-                    k_probs = k_probs.reshape(xx.shape)
-                    k_probs = np.ma.masked_where(Z != k, k_probs)
-                    ax.contourf(xx, yy, k_probs, 20, cmap = self.AvailColorMaps[k], alpha = 0.15)
+                elif mtdInt == 1:
+                    xx, yy = np.meshgrid(xx1, xx2)
+                    Z = self.classifier.predict(np.c_[xx.ravel(), yy.ravel()])
+                    Z_probs = self.classifier.predict_proba(np.c_[xx.ravel(), yy.ravel()])
+                    Z = Z.reshape(xx.shape)
+                    for k in range(clusters):
+                        k_probs = Z_probs[:, k]
+                        k_probs = k_probs.reshape(xx.shape)
+                        k_probs = np.ma.masked_where(Z != k, k_probs)
+                        ax.contourf(xx, yy, k_probs, 20, cmap = self.AvailColorMaps[k], alpha = 0.15)
+            except:
+                print(">>> Could not draw decision regions")
 
         # Plot details
         if auxParams['doDrawDetails']:
-            
-            if mtdInt == 1:
-                covars = self.classifier.Covars()
-                R = self.classifier.R()
-                for k in range(clusters):
-                    ids = np.argwhere(np.argmax(R, axis = 1) == k)[:, 0]
-                    pts = X[ids, :]
-                    pts_probs = R[ids, k]
-                    rgba = np.zeros((pts.shape[0], 4))
-                    if R.shape[1] > 2:
-                        rgba[:, 0] = R[ids, 2]
-                    rgba[:, 1] = R[ids, 1]
-                    rgba[:, 2] = R[ids, 0]
-                    rgba[:, 3] = pts_probs
-                    ax.scatter(pts[:, 0], pts[:, 1], color = rgba, label = "cluster {0}".format(k))
+            try:
+                if mtdInt == 1:
+                    covars = self.classifier.Covars()
+                    R = self.classifier.R()
+                    for k in range(clusters):
+                        ids = np.argwhere(np.argmax(R, axis = 1) == k)[:, 0]
+                        pts = X[ids, :]
+                        pts_probs = R[ids, k]
+                        rgba = np.zeros((pts.shape[0], 4))
+                        if R.shape[1] > 2:
+                            rgba[:, 0] = R[ids, 2]
+                        rgba[:, 1] = R[ids, 1]
+                        rgba[:, 2] = R[ids, 0]
+                        rgba[:, 3] = pts_probs
+                        ax.scatter(pts[:, 0], pts[:, 1], color = rgba, label = "cluster {0}".format(k))
 
-                # MoG density
-                xx1 = np.linspace(x1_min, x1_max, num = 100)
-                xx2 = np.linspace(x2_min, x2_max, num = 100)
-                X1_grid, X2_grid = np.meshgrid(xx1, xx2)
-                for ki in range(clusters):
-                    pdf = np.zeros(X1_grid.shape)
-                    for i in range(X1_grid.shape[0]):
-                        for j in range(X1_grid.shape[1]):
-                            px = np.array([X1_grid[i, j], X2_grid[i, j]])
-                            pdf[i, j] = model.multiGaussianPDF(px, Means_est[ki], covars[ki])
-                    ax.contour(X1_grid, X2_grid, pdf, cmap = self.AvailColorMaps[ki])
+                    # MoG density
+                    xx1 = np.linspace(x1_min, x1_max, num = 100)
+                    xx2 = np.linspace(x2_min, x2_max, num = 100)
+                    X1_grid, X2_grid = np.meshgrid(xx1, xx2)
+                    for ki in range(clusters):
+                        pdf = np.zeros(X1_grid.shape)
+                        for i in range(X1_grid.shape[0]):
+                            for j in range(X1_grid.shape[1]):
+                                px = np.array([X1_grid[i, j], X2_grid[i, j]])
+                                pdf[i, j] = model.multiGaussianPDF(px, Means_est[ki], covars[ki])
+                        ax.contour(X1_grid, X2_grid, pdf, cmap = self.AvailColorMaps[ki])
+            except:
+                print(">>> Could not draw details")
 
         
         # Plot data once more
@@ -401,4 +406,6 @@ class App:
 
 
 if __name__ == "__main__":
+    warnings.simplefilter('error', UserWarning)
+
     app = App().start()

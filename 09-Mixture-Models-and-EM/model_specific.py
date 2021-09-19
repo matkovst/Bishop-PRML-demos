@@ -13,7 +13,7 @@ def generateBlobs(N_points, N_classes, distr = 'gaussian'):
     for c in range(N_classes):
         if distr.lower() == 'gaussian':
             Mean = [15 * c, 15 * (c % 2)]
-            Covar = [[Stdev**2, Stdev], [Stdev, Stdev**2]]
+            Covar = [[Stdev**2, Stdev * 7 * ((c + 1) % 2)], [-Stdev * 7 * ((c + 2) % 2), Stdev**2]]
             X[N_per_class * c : N_per_class * (c + 1)] = np.random.multivariate_normal(Mean, Covar, N_per_class)
             y[N_per_class * c : N_per_class * (c + 1)] = c
         elif distr.lower() == 'mog':
@@ -48,6 +48,11 @@ def multiGaussianPDF(x, mu, covar):
     dff = (x - mu)
     expArg = np.clip((dff @ covar_inv @ dff.T) / (-2), -709.78, 709.78) # <- clip for float64 to avoid "RuntimeWarning: overflow encountered in exp"
     Exp = np.exp( expArg )
+    res = normCoeff * Exp
+    if res == np.inf:
+        return 1.0
+    elif res == -np.inf:
+        return 0.0
     return normCoeff * Exp
 
 def standardizing(data):
@@ -230,6 +235,8 @@ class MOGClassificator(Classificator):
             for n, xn in enumerate(self._Xtrain):
                 for k in range(K):
                     self._R[n, k] = self._Ps[k] * multiGaussianPDF(xn, self._Means[k], self._Covars[k])
+                    if np.isnan(self._R[n, k]):
+                        self._R[n, k] = 0.0
                 self._R[n] /= np.sum(self._R[n])
 
             # M-step
@@ -254,6 +261,7 @@ class MOGClassificator(Classificator):
 
     def evaluate(self, t):
         """Evaluates model accuracy given true clusters.
+        NOTE: The accuracy is identifiability-prone.
 
         @param t N-dimentional target vector of input data.
 
@@ -267,7 +275,7 @@ class MOGClassificator(Classificator):
         return 100 - (miscl / t.size) * 100
 
     def predict(self, x):
-        """Predicts cluster for given points.
+        """Performes "hard" clustering for given points.
 
         @param x D-dimentional point or NxD matrix of points
 

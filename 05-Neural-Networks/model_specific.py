@@ -60,7 +60,7 @@ class SimpleFeedForwardNetwork():
     def __init__(self) -> None:
         self.inputDim = 2 # including bias!
         self.NInputUnits = 2
-        self.NHiddenUnits = 5
+        self.NHiddenUnits = 10
         self.NOutputUnits = 1
         self.w1 = np.random.normal(0.0, 0.2, size = (self.inputDim, self.NHiddenUnits))
         self.w2 = np.random.normal(0.0, 0.2, size = (self.NHiddenUnits, self.NOutputUnits))
