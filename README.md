@@ -27,3 +27,14 @@ Python 3.6 with:
 - Bayesian logistic regression
 
 ![alt text](docs/lin-class-screenshot.jpg)
+
+## Neural Networks
+- Feed-forward neural network
+
+![alt text](docs/nn-screenshot.jpg)
+
+## Mixture Models and EM
+- K-means
+- Mixture of gaussians
+
+![alt text](docs/mix-mod-screenshot.jpg)
