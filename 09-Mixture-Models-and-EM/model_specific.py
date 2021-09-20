@@ -220,12 +220,29 @@ class MOGClassificator(Classificator):
         dims = self._Xtrain.shape[1]
         self._N = self._Xtrain.shape[0]
         Ns = np.zeros(K)
-        #self._Means = np.random.normal(size = (K, dims))
-        self._Means = self.kMeans.fit(self._Xtrain, K, epochs)
+
+        # "Dummy" initializing
+        self._Means = np.random.normal(size = (K, dims))
         self._Covars = np.random.normal(size = (K, dims, dims))
         self._Ps = np.random.uniform(size = K)
         self._Ps /= np.sum(self._Ps)
         self._R = np.zeros((self._N, K), dtype = np.float32)
+        
+        # K-means initializing
+        self._Means = self.kMeans.fit(self._Xtrain, K, epochs)
+        kmeans_pred = self.kMeans.predict(self._Xtrain)
+        for k in range(K):
+            self._Ps[k] = np.count_nonzero(kmeans_pred == k)
+            for n, xn in enumerate(self._Xtrain):
+                self._Covars[k] += np.outer((xn - self._Means[k]), (xn - self._Means[k]))
+            self._Covars[k] /= self._Ps[k]
+        self._Ps /= self._N
+
+        # Priors
+        m0 = self._Means.copy() # prior mean
+        S0 = self._Covars.copy() # prior covariance
+        kappa0 = 0.8 # how strongly we believe mean prior
+        vi0 = 0.8 # how strongly we believe covariance prior
 
         self._LogLikl_history = np.zeros(epochs + 1, dtype = np.float32)
         self._LogLikl_history[0] = self.__logLikelihood(self._Xtrain, self._Means, self._Covars, self._Ps)
@@ -244,14 +261,29 @@ class MOGClassificator(Classificator):
             self._Covars.fill(0)
             self._Ps.fill(0)
             Ns = np.sum(self._R, axis = 0)
+
+            # Calculate mean
+            wei_xk = np.zeros_like(self._Means)
             for k in range(K):
                 for n, xn in enumerate(self._Xtrain):
-                    self._Means[k] += self._R[n, k] * xn
-                self._Means[k] /= Ns[k]
+                    wei_xk[k] += self._R[n, k] * xn
+                wei_xk[k] /= Ns[k]
+            
+                # Include prior mean
+                self._Means[k] = (Ns[k] * wei_xk[k] + kappa0 * m0[k]) / (Ns[k] + kappa0)
+
+            # Calculate covariance
             for k in range(K):
                 for n, xn in enumerate(self._Xtrain):
-                    self._Covars[k] += self._R[n, k] * np.outer((xn - self._Means[k]), (xn - self._Means[k]))
-                self._Covars[k] /= Ns[k]
+                    self._Covars[k] += self._R[n, k] * np.outer((xn - wei_xk[k]), (xn - wei_xk[k]))
+
+                # Include prior covariance
+                numerArg = (kappa0 * Ns[k]) / (kappa0 + Ns[k])
+                self._Covars[k] = (S0[k] + self._Covars[k] + numerArg * np.outer((wei_xk[k] - m0[k]), (wei_xk[k] - m0[k])))
+                self._Covars[k] /= (vi0 + Ns[k] + dims + 2)
+                # self._Covars[k] /= Ns[k]
+
+            # Calculate mixing coefficients
             for k in range(K):
                 self._Ps[k] = Ns[k] / self._N
 
