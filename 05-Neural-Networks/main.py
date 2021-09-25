@@ -142,7 +142,7 @@ class App:
         FuncLabelText.set('f(x) = ')
         FuncLabel = tk.Label(self.dataGroupLabel, text = FuncLabelText, textvariable = FuncLabelText, fg = FG_COLOR, bg = BG_COLOR_GRAY2)
         FuncLabel.grid(row = 2, column = 3, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
-        funcs = [ "sin(2pix)", "exp(x)", "x^2", "|x|", "H(x)" ]
+        funcs = [ "sin(2pix)", "x+0.3sin(2pix)", "exp(x)", "x^2", "|x|", "H(x)" ]
         self.TrueFuncCBox = ttk.Combobox(self.dataGroupLabel, width = 9, values = funcs, state = "readonly", background = BG_COLOR_GRAY2)
         self.TrueFuncCBox.master.option_add( '*TCombobox*Listbox.Background', BG_COLOR_GRAY2)
         self.TrueFuncCBox.master.option_add( '*TCombobox*Listbox.Foreground', BT_TEXT_COLOR)
@@ -185,6 +185,17 @@ class App:
     def initModelGroup(self):
         self.modelGroupLabel = tk.LabelFrame(self.leftFrame, text = '  Model  ', fg = FG_COLOR, bg = BG_COLOR_GRAY2)
         self.modelGroupLabel.pack(padx = 5, pady = 5, side = tk.TOP, fill = tk.BOTH)
+
+        MLabelText = tk.StringVar()
+        MLabelText.set('Hidden units = ')
+        MSpinboxVar = tk.IntVar()
+        MSpinboxVar.set(3)
+        MLabel = tk.Label(self.modelGroupLabel, text = MLabelText, textvariable = MLabelText, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        MLabel.grid(row = 0, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        self.MSpinbox = tk.Spinbox(self.modelGroupLabel, width = 3, from_ = 1, to = 50, textvariable = MSpinboxVar, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2, buttonbackground = BG_COLOR_GRAY2)
+        self.MSpinbox.grid(row = 0, column = 1, columnspan = 2, sticky = tk.W + tk.E, padx = 5, pady = 5)
         
         EpochsLabelText = tk.StringVar()
         EpochsLabelText.set('Epochs = ')
@@ -192,10 +203,10 @@ class App:
         EpochsSpinboxVar.set(100)
         EpochsLabel = tk.Label(self.modelGroupLabel, text = EpochsLabelText, textvariable = EpochsLabelText, \
             fg = FG_COLOR, bg = BG_COLOR_GRAY2)
-        EpochsLabel.grid(row = 0, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        EpochsLabel.grid(row = 1, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
         self.EpochsSpinbox = tk.Spinbox(self.modelGroupLabel, width = 5, from_ = 1, to = 99999, textvariable = EpochsSpinboxVar, \
             fg = FG_COLOR, bg = BG_COLOR_GRAY2, buttonbackground = BG_COLOR_GRAY2)
-        self.EpochsSpinbox.grid(row = 0, column = 1, columnspan = 3, sticky = tk.W + tk.E, padx = 5, pady = 5)
+        self.EpochsSpinbox.grid(row = 1, column = 1, columnspan = 3, sticky = tk.W + tk.E, padx = 5, pady = 5)
         
         LRateLabelText = tk.StringVar()
         LRateLabelText.set('Learning rate = ')
@@ -203,28 +214,43 @@ class App:
         LRateSpinboxVar.set(0.05)
         LRateLabel = tk.Label(self.modelGroupLabel, text = LRateLabelText, textvariable = LRateLabelText, \
             fg = FG_COLOR, bg = BG_COLOR_GRAY2)
-        LRateLabel.grid(row = 1, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        LRateLabel.grid(row = 2, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
         self.LRateSpinbox = tk.Spinbox(self.modelGroupLabel, width = 4, from_ = 0.001, to = 9999, increment = 0.01, format = "%.3f", textvariable = LRateSpinboxVar, \
             fg = FG_COLOR, bg = BG_COLOR_GRAY2, buttonbackground = BG_COLOR_GRAY2)
-        self.LRateSpinbox.grid(row = 1, column = 1, columnspan = 3, sticky = tk.W + tk.E, padx = 5, pady = 5)
-
-        # MLabelText = tk.StringVar()
-        # MLabelText.set('Order = ')
-        # MSpinboxVar = tk.IntVar()
-        # MSpinboxVar.set(6)
-        # MLabel = tk.Label(self.modelGroupLabel, text = MLabelText, textvariable = MLabelText)
-        # MLabel.grid(row = 0, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
-        # self.MSpinbox = tk.Spinbox(self.modelGroupLabel, width = 3, from_ = 1, to = 50, textvariable = MSpinboxVar)
-        # self.MSpinbox.grid(row = 0, column = 1, columnspan = 2, sticky = tk.W + tk.E, padx = 5, pady = 5)
+        self.LRateSpinbox.grid(row = 2, column = 1, columnspan = 3, sticky = tk.W + tk.E, padx = 5, pady = 5)
         
-        # LmbdLabelText = tk.StringVar()
-        # LmbdLabelText.set('λ = ')
-        # LmbdSpinboxVar = tk.DoubleVar()
-        # LmbdSpinboxVar.set(0.00001)
-        # LmbdLabel = tk.Label(self.modelGroupLabel, text = LmbdLabelText, textvariable = LmbdLabelText)
-        # LmbdLabel.grid(row = 0, column = 3, sticky = tk.W + tk.N, padx = 5, pady = 5)
-        # self.LmbdSpinbox = tk.Spinbox(self.modelGroupLabel, width = 7, from_ = 0, to = 50, increment = 0.001, format = "%.5f", textvariable = LmbdSpinboxVar)
-        # self.LmbdSpinbox.grid(row = 0, column = 4, sticky = tk.W + tk.E, padx = 5, pady = 5)
+        AlphaLabelText = tk.StringVar()
+        AlphaLabelText.set('α = ')
+        AlphaSpinboxVar = tk.DoubleVar()
+        AlphaSpinboxVar.set(0.00033)
+        AlphaLabel = tk.Label(self.modelGroupLabel, text = AlphaLabelText, textvariable = AlphaLabelText, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        AlphaLabel.grid(row = 3, column = 0, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        self.AlphaSpinbox = tk.Spinbox(self.modelGroupLabel, width = 7, from_ = 0, to = 50, increment = 0.001, format = "%.5f", textvariable = AlphaSpinboxVar, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2, buttonbackground = BG_COLOR_GRAY2)
+        self.AlphaSpinbox.grid(row = 3, column = 1, sticky = tk.W + tk.E, padx = 5, pady = 5)
+        
+        BetaLabelText = tk.StringVar()
+        BetaLabelText.set('β = ')
+        BetaSpinboxVar = tk.DoubleVar()
+        BetaSpinboxVar.set(3.33)
+        BetaLabel = tk.Label(self.modelGroupLabel, text = BetaLabelText, textvariable = BetaLabelText, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        BetaLabel.grid(row = 4, column = 0, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        self.BetaSpinbox = tk.Spinbox(self.modelGroupLabel, width = 7, from_ = 0, to = 50, increment = 0.001, format = "%.5f", textvariable = BetaSpinboxVar, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2, buttonbackground = BG_COLOR_GRAY2)
+        self.BetaSpinbox.grid(row = 4, column = 1, sticky = tk.W + tk.E, padx = 5, pady = 5)
+        
+        LmbdLabelText = tk.StringVar()
+        LmbdLabelText.set('λ = ')
+        LmbdSpinboxVar = tk.DoubleVar()
+        LmbdSpinboxVar.set(0.00001)
+        LmbdLabel = tk.Label(self.modelGroupLabel, text = LmbdLabelText, textvariable = LmbdLabelText, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        LmbdLabel.grid(row = 5, column = 0, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        self.LmbdSpinbox = tk.Spinbox(self.modelGroupLabel, width = 7, from_ = 0, to = 50, increment = 0.001, format = "%.5f", textvariable = LmbdSpinboxVar, \
+            fg = FG_COLOR, bg = BG_COLOR_GRAY2, buttonbackground = BG_COLOR_GRAY2)
+        self.LmbdSpinbox.grid(row = 5, column = 1, sticky = tk.W + tk.E, padx = 5, pady = 5)
 
         # self.modelRButtonVar = tk.IntVar()
         # self.modelRButtonVar.set(0)
@@ -309,14 +335,14 @@ class App:
         self.ErrorValueLabel = tk.Label(self.infoGroupLabel, text = self.ErrorValueLabelText, textvariable = self.ErrorValueLabelText, fg = FG_COLOR, bg = BG_COLOR_GRAY2)
         self.ErrorValueLabel.grid(row = 0, column = 1, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
         
-        # AlphaLabelText = tk.StringVar()
-        # AlphaLabelText.set('Estimated α = ')
-        # AlphaLabel = tk.Label(self.infoGroupLabel, text = AlphaLabelText, textvariable = AlphaLabelText)
-        # AlphaLabel.grid(row = 0, column = 2, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
-        # self.AlphaValueLabelText = tk.StringVar()
-        # self.AlphaValueLabelText.set('')
-        # self.AlphaValueLabel = tk.Label(self.infoGroupLabel, text = self.AlphaValueLabelText, textvariable = self.AlphaValueLabelText)
-        # self.AlphaValueLabel.grid(row = 0, column = 3, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        AlphaLabelText = tk.StringVar()
+        AlphaLabelText.set('Estimated α = ')
+        AlphaLabel = tk.Label(self.infoGroupLabel, text = AlphaLabelText, textvariable = AlphaLabelText, fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        AlphaLabel.grid(row = 1, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        self.AlphaValueLabelText = tk.StringVar()
+        self.AlphaValueLabelText.set('')
+        self.AlphaValueLabel = tk.Label(self.infoGroupLabel, text = self.AlphaValueLabelText, textvariable = self.AlphaValueLabelText, fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        self.AlphaValueLabel.grid(row = 1, column = 1, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
         
         # MFavourLabelText = tk.StringVar()
         # MFavourLabelText.set('M favour = ')
@@ -327,14 +353,14 @@ class App:
         # self.MFavourValueLabel = tk.Label(self.infoGroupLabel, text = self.MFavourValueLabelText, textvariable = self.MFavourValueLabelText)
         # self.MFavourValueLabel.grid(row = 1, column = 1, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
         
-        # BetaLabelText = tk.StringVar()
-        # BetaLabelText.set('Estimated β = ')
-        # BetaLabel = tk.Label(self.infoGroupLabel, text = BetaLabelText, textvariable = BetaLabelText)
-        # BetaLabel.grid(row = 1, column = 2, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
-        # self.BetaValueLabelText = tk.StringVar()
-        # self.BetaValueLabelText.set('')
-        # self.BetaValueLabel = tk.Label(self.infoGroupLabel, text = self.BetaValueLabelText, textvariable = self.BetaValueLabelText)
-        # self.BetaValueLabel.grid(row = 1, column = 3, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        BetaLabelText = tk.StringVar()
+        BetaLabelText.set('Estimated β = ')
+        BetaLabel = tk.Label(self.infoGroupLabel, text = BetaLabelText, textvariable = BetaLabelText, fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        BetaLabel.grid(row = 2, column = 0, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
+        self.BetaValueLabelText = tk.StringVar()
+        self.BetaValueLabelText.set('')
+        self.BetaValueLabel = tk.Label(self.infoGroupLabel, text = self.BetaValueLabelText, textvariable = self.BetaValueLabelText, fg = FG_COLOR, bg = BG_COLOR_GRAY2)
+        self.BetaValueLabel.grid(row = 2, column = 1, columnspan = 1, sticky = tk.W + tk.N, padx = 5, pady = 5)
 
     def initGraphPanel(self):
         self.figure = Figure(figsize = (5, 5), dpi = 100)
@@ -446,7 +472,11 @@ class App:
         epochs = int(self.EpochsSpinbox.get())
         batch_size = 32
         lrate = float(self.LRateSpinbox.get())
-        self.nnModel = model.SimpleFeedForwardNetwork()
+        NHiddenUnits = int(self.MSpinbox.get())
+        al = float(self.AlphaSpinbox.get())
+        bt = float(self.BetaSpinbox.get())
+        lmbd = float(self.LmbdSpinbox.get())
+        self.nnModel = model.SimpleFeedForwardNetwork(NHiddenUnits)
 
         # How about a little animation?
         doAnimate = bool(self.animateCButtonVar.get())
@@ -462,7 +492,17 @@ class App:
         N = X.size
         X_train = np.ones((N, 2), dtype = np.float32)
         X_train[:, 1:] = np.expand_dims(X, 1)
-        self.nnModel.fit(X_train, t, epochs, batch_size, lrate, verbose = True)
+        self.nnModel.fit(X_train, t, epochs, batch_size, lrate, lmbd, al, bt, verbose = True)
+
+        # Estimate α and β
+        a0 = 0.001
+        b0 = 100
+        a_est, b_est = self.nnModel.hyperparameterOptimization_experimental(X_train, t, a0, b0)
+
+        # Fill info
+        # self.ErrorValueLabelText.set( "{:.3f}".format(model.RMS(x, w_est, t, basis = BasisName)) )
+        self.AlphaValueLabelText.set( "{:.3f}".format(a_est) )
+        self.BetaValueLabelText.set( "{:.3f}".format(b_est) )
 
         # Plotting
         Npoints = 100
@@ -475,6 +515,20 @@ class App:
         # Draw ground-truth function
         if self.gtLinspace.size > 0:
             ax.plot(xp, self.gtLinspace, '--', label = 'ground-truth function', color = CYBERPUNK_COLORS[1])
+
+        # Draw points from predictive distribution
+        ptp = np.zeros(Npoints, dtype = np.float32)
+        ptp_lower = np.zeros(Npoints, dtype = np.float32)
+        ptp_upper = np.zeros(Npoints, dtype = np.float32)
+        for i in range(Npoints):
+            pMean, pSigma = self.nnModel.predictBayesian([1, xp[i]])
+            ptp[i] = pMean
+            ptp_lower[i] = pMean - pSigma
+            ptp_upper[i] = pMean + pSigma
+        
+        # Draw uncertainity borders from predictive distribution
+        if True:
+            ax.fill_between(xp, ptp_lower, ptp_upper, color = CYBERPUNK_COLORS[1], alpha = 0.08)
 
         # Draw predicted function
         ptp = np.zeros(Npoints, dtype = np.float32)

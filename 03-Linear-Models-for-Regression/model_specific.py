@@ -257,8 +257,8 @@ def estimateHyperparams(X, t, a0, b0):
 
     @param X NxM feature matrix of input data.
     @param t N-dimentional target vector of input data.
-    @param a precision (inverse variance) of the prior weight distribution
-    @param b precision (inverse variance) of input data
+    @param a precision (inverse variance) of the prior weight distribution.
+    @param b precision (inverse variance) of input data.
 
     @return Estimated mean and sigma of the predictive distribution
     """
@@ -266,7 +266,7 @@ def estimateHyperparams(X, t, a0, b0):
     N = t.size
     a = a0
     b = b0
-    _, eig_v = LA.eig( b * X.T @ X )
+    eig_w, _ = LA.eig( b * X.T @ X )
 
     eps = 10**-2
     doStop = False
@@ -279,9 +279,9 @@ def estimateHyperparams(X, t, a0, b0):
         b_prev = b
         lmbd = a / b
         wMean, _ = wPosteriorParams(X, t, b, lmbd)
-        _, eig_v = LA.eig( b * X.T @ X )
+        eig_w, _ = LA.eig( b * X.T @ X )
 
-        gamma = np.sum( eig_v / (a + eig_v) )
+        gamma = np.sum( eig_w / (a + eig_w) )
         a = gamma / (wMean.T @ wMean)
         sum_of_sq = 0.0
         for i in range(N):
